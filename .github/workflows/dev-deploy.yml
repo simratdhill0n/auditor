@@ -1,0 +1,18 @@
+name: Deploy to Dev
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - run: pip install -r backend/requirements.txt pytest pytest-cov
+      - run: pytest backend/tests -v
+      - run: docker build -f backend/Dockerfile -t auditor:dev .

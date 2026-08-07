@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  auditor:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      FLASK_ENV: development
+      CLAUDE_API_KEY: ${CLAUDE_API_KEY}
+    volumes:
+      - ./backend:/app
