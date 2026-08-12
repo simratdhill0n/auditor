@@ -63,7 +63,10 @@ def analyze():
             "error": "Content-Type must be application/json",
         }), 400
 
-    body = request.get_json(silent=True) or {}
+    body = request.get_json(silent=True)
+    if body is None and request.data:
+        return jsonify({"success": False, "error": "Invalid JSON body"}), 400
+    body = body or {}
     user_id = str(body.get("user_id") or "").strip()
     prompt = str(body.get("prompt") or body.get("question") or "").strip()
     keyword = str(body.get("keyword") or prompt).strip()
