@@ -24,7 +24,7 @@ def _trim_dataset(item: dict) -> dict:
         "name": item.get("name"),
         "title": item.get("title"),
         "notes": notes,
-        "organization": org.get("title") or org.get("name") or item.get("organization"),
+        "organization": org.get("title") or org.get("name"),
     }
 
 
