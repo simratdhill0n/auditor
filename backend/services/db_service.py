@@ -1,6 +1,8 @@
 # Database service - local stand-in until Person 3 wires DynamoDB
 """Store and fetch analysis history.
-I used temperory local memory for the testing puposes, you can change this as this is required from your part
+
+This is a temporary in-memory implementation used for local development and tests.
+Replace with DynamoDB while keeping the save_analysis/get_user_history interface.
 """
 
 from __future__ import annotations
