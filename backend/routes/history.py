@@ -31,8 +31,8 @@ def history():
         items = get_user_history(user_id, limit=limit)
     except ValueError as exc:
         return jsonify({"success": False, "error": str(exc)}), 400
-    except Exception as exc:  # noqa: BLE001 — surface unexpected store failures
-        return jsonify({"success": False, "error": f"Could not load history: {exc}"}), 500
+    except Exception:  # noqa: BLE001 — surface unexpected store failures
+        return jsonify({"success": False, "error": "Could not load history"}), 500
 
     return jsonify({
         "success": True,
