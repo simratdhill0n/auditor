@@ -1,13 +1,125 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <link rel="stylesheet" href="popup.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auditor - Government Data Analysis</title>
+    <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <h1>Auditor</h1>
-  <textarea id="prompt" placeholder="Ask about government data..."></textarea>
-  <button id="analyze">Analyze</button>
-  <div id="result"></div>
-  <script src="popup.js"></script>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📊 Auditor</h1>
+            <p class="subtitle">Canadian Government Data Analysis</p>
+        </div>
+
+        <!-- Input Section -->
+        <div class="input-section">
+            <div class="form-group">
+                <label for="userInput">Your Question:</label>
+                <textarea 
+                    id="userInput" 
+                    placeholder="e.g., What are the top government spending departments? What climate datasets exist?" 
+                    rows="3"
+                ></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="keyword">Keyword (optional):</label>
+                <input 
+                    type="text" 
+                    id="keyword" 
+                    placeholder="e.g., climate, spending, health"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="limit">Number of Datasets:</label>
+                <input 
+                    type="number" 
+                    id="limit" 
+                    value="3" 
+                    min="1" 
+                    max="20"
+                >
+            </div>
+
+            <button id="analyzeBtn" class="btn-primary">🔍 Analyze</button>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>Searching datasets & analyzing...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="error" class="error hidden">
+            <p id="errorText"></p>
+            <button id="errorClose" class="btn-secondary">Close</button>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results" class="results hidden">
+            <div class="results-header">
+                <h2>📈 Analysis Results</h2>
+                <button id="clearResults" class="btn-icon">✕</button>
+            </div>
+
+            <div class="prompt-box">
+                <strong>Question:</strong>
+                <p id="resultPrompt"></p>
+            </div>
+
+            <div class="analysis-box">
+                <strong>Analysis:</strong>
+                <div id="resultAnalysis" class="analysis-text"></div>
+            </div>
+
+            <div class="datasets-box">
+                <strong>Datasets Used:</strong>
+                <div id="resultDatasets" class="datasets-list"></div>
+            </div>
+
+            <div class="metadata">
+                <small id="resultMeta"></small>
+            </div>
+
+            <button id="copyResults" class="btn-secondary">📋 Copy Analysis</button>
+            <button id="viewHistory" class="btn-secondary">📚 View History</button>
+        </div>
+
+        <!-- History Section -->
+        <div id="history" class="history hidden">
+            <div class="history-header">
+                <h2>📚 Analysis History</h2>
+                <button id="closeHistory" class="btn-icon">✕</button>
+            </div>
+
+            <div id="historyList" class="history-list"></div>
+
+            <button id="clearHistory" class="btn-secondary">🗑️ Clear History</button>
+        </div>
+
+        <!-- Settings -->
+        <div class="settings">
+            <label for="userId">User ID:</label>
+            <input 
+                type="text" 
+                id="userId" 
+                placeholder="Enter your user ID"
+            >
+            <label for="apiUrl">API URL:</label>
+            <input 
+                type="text" 
+                id="apiUrl" 
+                placeholder="http://localhost:5000"
+            >
+            <small class="hint">Saves automatically to browser storage</small>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
 </body>
 </html>

@@ -1,11 +1,16 @@
 {
   "manifest_version": 3,
-  "name": "Auditor",
-  "version": "1.0",
-  "description": "AI-powered analysis of Canadian government data",
-  "permissions": ["storage"],
+  "name": "Auditor - Government Data Analysis",
+  "version": "1.0.0",
+  "description": "Analyze Canadian government open data with AI-powered insights",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "http://localhost:5000/*"
+  ],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Auditor"
+    "default_title": "Auditor - Analyze Government Data"
   }
 }
