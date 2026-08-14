@@ -1,0 +1,54 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Description: Auditor - AI-powered Government Data Analysis Platform
+
+Globals:
+  Function:
+    Timeout: 60
+    MemorySize: 512
+    Runtime: python3.12
+    Environment:
+      Variables:
+        DEEPSEEK_API_KEY: !Ref DeepSeekApiKey
+
+Parameters:
+  DeepSeekApiKey:
+    Type: String
+    NoEcho: true
+    Description: DeepSeek API Key from OpenRouter
+
+Resources:
+  AuditorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: auditor-backend
+      CodeUri: .
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      MemorySize: 512
+      Timeout: 60
+      Environment:
+        Variables:
+          DEEPSEEK_API_KEY: !Ref DeepSeekApiKey
+      Events:
+        AnalyzeApi:
+          Type: Api
+          Properties:
+            Path: /api/analyze
+            Method: POST
+        SearchApi:
+          Type: Api
+          Properties:
+            Path: /api/datasets
+            Method: GET
+        HistoryApi:
+          Type: Api
+          Properties:
+            Path: /api/history
+            Method: GET
+        HealthApi:
+          Type: Api
+          Properties:
+            Path: /health
+            Method: GET

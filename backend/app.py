@@ -2,11 +2,20 @@ from flask import Flask
 from flask_cors import CORS
 import logging
 from dotenv import load_dotenv
+from awsgi import response
 
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)
+
+# Explicit CORS configuration
+CORS(app, resources={
+    r"/*": {
+        "origins": "*",
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }
+})
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -25,7 +34,10 @@ def health():
     return {"status": "ok"}, 200
 
 
-
+# Lambda handler for AWS
+def lambda_handler(event, context):
+    """AWS Lambda handler for the Flask app"""
+    return response(app, event, context)
 
 
 if __name__ == '__main__':

@@ -1,4 +1,4 @@
-{
+﻿{
   "manifest_version": 3,
   "name": "Auditor - Government Data Analysis",
   "version": "1.0.0",
@@ -7,7 +7,7 @@
     "storage"
   ],
   "host_permissions": [
-    "https://x4lby0wq2m.execute-api.us-east-1.amazonaws.com/*",
+    "https://*.execute-api.*.amazonaws.com/*",
     "http://localhost:5000/*"
   ],
   "action": {

@@ -9,3 +9,11 @@ venv/
 .coverage
 
 .venv/
+
+.aws-sam
+.aws-sam/
+__pycache__/
+*.pyc
+.env
+.venv
+samconfig.toml

@@ -278,9 +278,9 @@ function loadSettings() {
     chrome.storage.sync.get(['settings'], (result) => {
         if (result.settings) {
             userId.value = result.settings.userId || '';
-            apiUrl.value = result.settings.apiUrl || 'http://localhost:5000';
+            apiUrl.value = result.settings.apiUrl || 'https://x4lby0wq2m.execute-api.us-east-1.amazonaws.com/Prod';
         } else {
-            apiUrl.value = 'http://localhost:5000';
+            apiUrl.value = 'https://x4lby0wq2m.execute-api.us-east-1.amazonaws.com/Prod';
         }
     });
 }
