@@ -1,19 +1,34 @@
-# Analyze route - USES AI AGENT
-"""POST /api/analyze — AI Agent searches Canada data intelligently."""
+"""POST /api/analyze — search Canada data and ask DeepSeek for analysis."""
 
 from __future__ import annotations
 
 from flask import Blueprint, jsonify, request
 
-from services.ai_agent import get_agent
+from services.canada_api import search_datasets
 from services.db_service import save_analysis
+from services.deepseek_service import ask_llm
 
 analyze_bp = Blueprint("analyze", __name__)
 
 
+def _trim_dataset(item: dict) -> dict:
+    org = item.get("organization") or {}
+    if not isinstance(org, dict):
+        org = {}
+    notes = item.get("notes") or ""
+    if isinstance(notes, str) and len(notes) > 500:
+        notes = notes[:500] + "..."
+    return {
+        "id": item.get("id"),
+        "name": item.get("name"),
+        "title": item.get("title"),
+        "notes": notes,
+        "organization": org.get("title") or org.get("name"),
+    }
+
+
 @analyze_bp.post("/api/analyze")
 def analyze():
-    """Analyze government data using AI Agent."""
     if not request.is_json:
         return jsonify({
             "success": False,
@@ -21,20 +36,15 @@ def analyze():
         }), 400
 
     body = request.get_json(silent=True)
-    if body is None and request.data:
-        return jsonify({"success": False, "error": "Invalid JSON body"}), 400
     body = body or {}
-    
     user_id = str(body.get("user_id") or "").strip()
     prompt = str(body.get("prompt") or body.get("question") or "").strip()
+    keyword = str(body.get("keyword") or prompt).strip()
 
     if not user_id:
         return jsonify({"success": False, "error": "'user_id' is required"}), 400
     if not prompt:
-        return jsonify({
-            "success": False,
-            "error": "'prompt' (or 'question') is required",
-        }), 400
+        return jsonify({"success": False, "error": "'prompt' is required"}), 400
 
     try:
         limit = int(body.get("limit", 5))
@@ -44,44 +54,42 @@ def analyze():
     if limit < 1 or limit > 20:
         return jsonify({"success": False, "error": "'limit' must be between 1 and 20"}), 400
 
+    search = search_datasets(keyword, limit=limit)
+    if not search.success:
+        return jsonify({"success": False, "error": search.error}), 502
+
+    datasets = [
+        _trim_dataset(item)
+        for item in (search.result or [])
+        if isinstance(item, dict)
+    ]
+
+    llm = ask_llm(prompt, data_context=datasets)
+    if not llm.success:
+        return jsonify({"success": False, "error": llm.error}), 502
+
+    saved = False
+    record_id = None
     try:
-        agent = get_agent()
-        agent_result = agent.analyze_with_data(prompt, limit=limit)
-        
-        if not agent_result.success:
-            return jsonify({"success": False, "error": agent_result.error}), 502
-
-        analysis_data = agent_result.result
-        analysis_text = analysis_data.get("analysis", "No analysis generated")
-        datasets_used = analysis_data.get("datasets", [])
-
+        record = save_analysis(
+            user_id=user_id,
+            prompt=prompt,
+            analysis=llm.content,
+            keyword=keyword,
+            dataset_id=None,
+            datasets_used=datasets,
+        )
+        saved = True
+        record_id = record.get("id")
+    except Exception:
         saved = False
-        record_id = None
-        try:
-            record = save_analysis(
-                user_id=user_id,
-                prompt=prompt,
-                analysis=analysis_text,
-                keyword=None,
-                dataset_id=None,
-                datasets_used=datasets_used,
-            )
-            saved = True
-            record_id = record.get("id")
-        except Exception:
-            saved = False
 
-        return jsonify({
-            "success": True,
-            "id": record_id,
-            "user_id": user_id,
-            "prompt": prompt,
-            "datasets_found": analysis_data.get("datasets_found", 0),
-            "datasets_used": datasets_used,
-            "analysis": analysis_text,
-            "saved": saved,
-            "agent_used": True,
-        }), 200
-
-    except Exception as e:
-        return jsonify({"success": False, "error": f"Analysis error: {str(e)}"}), 500
+    return jsonify({
+        "success": True,
+        "id": record_id,
+        "user_id": user_id,
+        "prompt": prompt,
+        "datasets_used": datasets,
+        "analysis": llm.content,
+        "saved": saved,
+    }), 200
